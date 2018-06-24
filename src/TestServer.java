@@ -6,8 +6,9 @@ import java.io.InputStreamReader;
 
 public class TestServer {
     private static final int Port = 8080;
+    private static final int NumThreads = 10;
 
-    private static JobServer setup(int port) {
+    private static JobServer setup(int port, int numThreads) {
         ResponseManager responseManager;
         MessageVerifier messageVerifier;
 
@@ -15,7 +16,7 @@ public class TestServer {
         responseManager = new ResponseManager();
         responseManager.register(messageVerifier.getClass().getName(), messageVerifier);
 
-        return new JobServer(port, 128, 1000, responseManager);
+        return new JobServer(port, 128, numThreads, responseManager);
     }
 
     private static class ServerThread implements Runnable {
@@ -32,14 +33,22 @@ public class TestServer {
     }
 
     public static void main(String args[]) {
-        int givenPort = Port;
+        int givenPort, givenNumThreads, i;
+
+        givenPort = Port;
+        givenNumThreads = NumThreads;
 
         if (args.length > 0) {
-            String previousKey = args[0];
-            for(int i=1;i<args.length;i++){
+            String previousKey;
+
+            previousKey = args[0];
+            for(i = 1; i < args.length; i++){
                 switch (previousKey) {
                     case "-port":
                         givenPort = Integer.parseInt(args[i]);
+                        break;
+                    case "-threads":
+                        givenNumThreads = Integer.parseInt(args[i]);
                         break;
                 }
                 previousKey = args[i];
@@ -49,7 +58,7 @@ public class TestServer {
         JobServer jobServer;
         Thread thread;
 
-        jobServer = setup(givenPort);
+        jobServer = setup(givenPort, givenNumThreads);
         thread = new Thread(new ServerThread(jobServer));
         thread.start();
 
