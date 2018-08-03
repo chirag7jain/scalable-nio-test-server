@@ -16,7 +16,7 @@ public class TestServer {
         responseManager = new ResponseManager();
         responseManager.register(messageVerifier.getClass().getName(), messageVerifier);
 
-        return new JobServer(port, 128, numThreads, responseManager);
+        return new JobServer(port, 1024, numThreads, responseManager);
     }
 
     private static class ServerThread implements Runnable {
